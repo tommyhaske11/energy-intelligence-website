@@ -1822,6 +1822,11 @@ class EnergyIntelligenceWebsite:
             justify-content: center;
             box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
             transition: all 0.3s ease;
+            pointer-events: auto;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
         }}
         
         .chat-toggle:hover {{
@@ -3060,28 +3065,48 @@ class EnergyIntelligenceWebsite:
             const chatTyping = document.getElementById('chatTyping');
             
             // Toggle chat visibility with mobile enhancements
-            chatToggle.addEventListener('click', function() {{
-                const isOpening = !chatContainer.classList.contains('active');
-                chatContainer.classList.toggle('active');
-                
-                if (isOpening) {{
-                    // Opening chat
-                    document.body.classList.add('chat-open');
+            if (chatToggle && chatContainer) {{
+                chatToggle.addEventListener('click', function(e) {{
+                    e.preventDefault(); // Prevent any default behavior
+                    e.stopPropagation(); // Stop event bubbling
                     
-                    // Focus input after animation completes (mobile-friendly)
-                    setTimeout(() => {{
-                        if (window.innerWidth <= 768) {{
-                            // On mobile, scroll to ensure input is visible
-                            chatInput.scrollIntoView({{ behavior: 'smooth', block: 'center' }});
-                        }}
-                        chatInput.focus();
-                    }}, 100);
-                }} else {{
-                    // Closing chat
-                    document.body.classList.remove('chat-open');
-                    chatInput.blur(); // Remove focus to hide mobile keyboard
-                }}
-            }});
+                    console.log('Chat toggle clicked'); // Debug log
+                    
+                    const isOpening = !chatContainer.classList.contains('active');
+                    chatContainer.classList.toggle('active');
+                    
+                    if (isOpening) {{
+                        // Opening chat
+                        document.body.classList.add('chat-open');
+                        
+                        // Focus input after animation completes (mobile-friendly)
+                        setTimeout(() => {{
+                            if (chatInput) {{
+                                if (window.innerWidth <= 768) {{
+                                    // On mobile, scroll to ensure input is visible
+                                    chatInput.scrollIntoView({{ behavior: 'smooth', block: 'center' }});
+                                }}
+                                chatInput.focus();
+                            }}
+                        }}, 100);
+                    }} else {{
+                        // Closing chat
+                        document.body.classList.remove('chat-open');
+                        if (chatInput) chatInput.blur(); // Remove focus to hide mobile keyboard
+                    }}
+                }});
+                
+                // Also add touch event for better mobile support
+                chatToggle.addEventListener('touchend', function(e) {{
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Trigger click event
+                    chatToggle.click();
+                }}, {{ passive: false }});
+            }} else {{
+                console.error('Chat elements not found:', {{ chatToggle, chatContainer }});
+            }}
             
             // Send message function
             function sendMessage() {{
@@ -3173,56 +3198,70 @@ class EnergyIntelligenceWebsite:
                 }}
             }});
             
-            // Handle mobile keyboard visibility
-            if (window.innerWidth <= 768) {{
-                // Detect virtual keyboard on mobile
-                let initialViewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-                
-                function handleViewportChange() {{
-                    const currentHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-                    const heightDifference = initialViewportHeight - currentHeight;
+            // Handle mobile keyboard visibility (with proper element checking)
+            function setupMobileKeyboardHandling() {{
+                if (window.innerWidth <= 768 && chatContainer) {{
+                    // Detect virtual keyboard on mobile
+                    let initialViewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
                     
-                    if (heightDifference > 150) {{ // Keyboard is likely open
-                        chatContainer.style.height = `calc(100vh - ${{heightDifference}}px - 90px)`;
-                    }} else {{ // Keyboard is likely closed
-                        chatContainer.style.height = '';
+                    function handleViewportChange() {{
+                        if (!chatContainer) return; // Safety check
+                        
+                        const currentHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+                        const heightDifference = initialViewportHeight - currentHeight;
+                        
+                        if (heightDifference > 150) {{ // Keyboard is likely open
+                            chatContainer.style.height = `calc(100vh - ${{heightDifference}}px - 90px)`;
+                        }} else {{ // Keyboard is likely closed
+                            chatContainer.style.height = '';
+                        }}
                     }}
-                }}
-                
-                if (window.visualViewport) {{
-                    window.visualViewport.addEventListener('resize', handleViewportChange);
-                }} else {{
-                    window.addEventListener('resize', handleViewportChange);
-                }}
-            }}
-            
-            // Enhanced touch handling for mobile
-            let touchStartY = 0;
-            let touchEndY = 0;
-            
-            chatMessages.addEventListener('touchstart', function(e) {{
-                touchStartY = e.changedTouches[0].screenY;
-            }}, {{ passive: true }});
-            
-            chatMessages.addEventListener('touchend', function(e) {{
-                touchEndY = e.changedTouches[0].screenY;
-                handleSwipeGesture();
-            }}, {{ passive: true }});
-            
-            function handleSwipeGesture() {{
-                const swipeThreshold = 50;
-                const swipeDistance = touchStartY - touchEndY;
-                
-                // Swipe down to close chat on mobile
-                if (swipeDistance < -swipeThreshold && window.innerWidth <= 768) {{
-                    const messagesScrollTop = chatMessages.scrollTop;
-                    if (messagesScrollTop === 0) {{ // Only close if at top of messages
-                        chatContainer.classList.remove('active');
-                        document.body.classList.remove('chat-open');
-                        chatInput.blur();
+                    
+                    if (window.visualViewport) {{
+                        window.visualViewport.addEventListener('resize', handleViewportChange);
+                    }} else {{
+                        window.addEventListener('resize', handleViewportChange);
                     }}
                 }}
             }}
+            
+            // Call mobile setup after a short delay
+            setTimeout(setupMobileKeyboardHandling, 100);
+            
+            // Enhanced touch handling for mobile (with proper element checking)
+            function setupTouchHandling() {{
+                if (!chatMessages) return; // Safety check
+                
+                let touchStartY = 0;
+                let touchEndY = 0;
+                
+                chatMessages.addEventListener('touchstart', function(e) {{
+                    touchStartY = e.changedTouches[0].screenY;
+                }}, {{ passive: true }});
+                
+                chatMessages.addEventListener('touchend', function(e) {{
+                    touchEndY = e.changedTouches[0].screenY;
+                    handleSwipeGesture();
+                }}, {{ passive: true }});
+                
+                function handleSwipeGesture() {{
+                    const swipeThreshold = 50;
+                    const swipeDistance = touchStartY - touchEndY;
+                    
+                    // Swipe down to close chat on mobile
+                    if (swipeDistance < -swipeThreshold && window.innerWidth <= 768) {{
+                        const messagesScrollTop = chatMessages.scrollTop;
+                        if (messagesScrollTop === 0) {{ // Only close if at top of messages
+                            chatContainer.classList.remove('active');
+                            document.body.classList.remove('chat-open');
+                            if (chatInput) chatInput.blur();
+                        }}
+                    }}
+                }}
+            }}
+            
+            // Setup touch handling after elements are ready
+            setTimeout(setupTouchHandling, 100);
         }}
         
         function addMessageToChat(message, sender) {{
