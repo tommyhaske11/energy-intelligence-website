@@ -726,7 +726,10 @@ class EnergyIntelligenceWebsite:
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Energy Intelligence | Real-Time Market Analysis</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
@@ -1449,28 +1452,263 @@ class EnergyIntelligenceWebsite:
             display: none;
         }}
         
+        /* Enhanced Mobile Responsiveness */
         @media (max-width: 768px) {{
+            /* Layout Adjustments */
             .metrics-grid,
             .insights-grid,
-            .news-grid {{
+            .news-grid,
+            .comparison-grid {{
                 grid-template-columns: 1fr;
+                gap: 16px;
+            }}
+            
+            .dashboard {{
+                padding: 0 16px;
+                margin-top: -20px;
+            }}
+            
+            /* Header Mobile Optimization */
+            .header {{
+                padding: 12px 0;
+                position: fixed;
+            }}
+            
+            .header-container {{
+                padding: 0 16px;
+                flex-direction: column;
+                gap: 12px;
+            }}
+            
+            .logo {{
+                font-size: 24px;
+            }}
+            
+            .status-indicator {{
+                font-size: 12px;
+                padding: 8px 16px;
+            }}
+            
+            /* Hero Section Mobile */
+            .hero {{
+                min-height: 70vh;
+                padding-top: 120px;
+            }}
+            
+            .hero-container {{
+                padding: 60px 16px 40px;
             }}
             
             .hero h1 {{
-                font-size: 48px;
+                font-size: 32px;
+                margin-bottom: 16px;
+            }}
+            
+            .hero p {{
+                font-size: 16px;
+                margin-bottom: 32px;
+            }}
+            
+            /* Tab Navigation Mobile */
+            .tab-navigation {{
+                margin: 0 16px 24px;
+                padding: 6px;
+                position: sticky;
+                top: 80px;
+                flex-direction: column;
+                gap: 6px;
+            }}
+            
+            .tab-button {{
+                padding: 14px 20px;
+                font-size: 14px;
+                text-align: center;
+            }}
+            
+            /* Cards Mobile Optimization */
+            .metric-card,
+            .insight-card,
+            .news-card,
+            .comparison-card {{
+                padding: 20px;
+                margin-bottom: 16px;
+            }}
+            
+            .metric-value {{
+                font-size: 36px;
+                margin-bottom: 6px;
+            }}
+            
+            .metric-title {{
+                font-size: 14px;
+            }}
+            
+            .metric-subtitle {{
+                font-size: 12px;
+            }}
+            
+            /* Charts Mobile */
+            .chart-container {{
+                height: 250px;
+            }}
+            
+            .chart-wrapper {{
+                padding: 15px;
+                margin-top: 15px;
+            }}
+            
+            /* Section Headers Mobile */
+            .section-header {{
+                margin-bottom: 40px;
+                text-align: center;
             }}
             
             .section-header h2 {{
-                font-size: 36px;
+                font-size: 28px;
+                margin-bottom: 16px;
             }}
             
+            .section-header p {{
+                font-size: 16px;
+            }}
+            
+            /* News Cards Mobile */
+            .news-image {{
+                height: 180px;
+            }}
+            
+            .news-content {{
+                padding: 16px;
+            }}
+            
+            .news-title {{
+                font-size: 16px;
+                line-height: 1.4;
+            }}
+            
+            .news-summary {{
+                font-size: 14px;
+                line-height: 1.5;
+            }}
+            
+            /* Modal Mobile */
             .modal-content {{
                 width: 95%;
-                margin: 10% auto;
+                margin: 5% auto;
+            }}
+            
+            .modal-header {{
+                padding: 16px;
+            }}
+            
+            .modal-header h2 {{
+                font-size: 20px;
+            }}
+            
+            .modal-body {{
+                padding: 20px;
+            }}
+            
+            /* Touch-Friendly Elements */
+            .metric-card:hover {{
+                transform: none;
+            }}
+            
+            .metric-card:active {{
+                transform: scale(0.98);
+                transition: transform 0.1s ease;
+            }}
+            
+            .tab-button {{
+                min-height: 48px;
+            }}
+            
+            .read-article-btn {{
+                padding: 12px 16px;
+                font-size: 14px;
+            }}
+            
+            /* Footer Mobile */
+            .footer {{
+                padding: 60px 0 30px;
+            }}
+            
+            .footer-content {{
+                padding: 0 16px;
+            }}
+            
+            .footer h3 {{
+                font-size: 28px;
+            }}
+            
+            .footer p {{
+                font-size: 16px;
+            }}
+        }}
+        
+        /* Small Mobile Devices */
+        @media (max-width: 480px) {{
+            .hero h1 {{
+                font-size: 28px;
+            }}
+            
+            .hero p {{
+                font-size: 14px;
+            }}
+            
+            .metric-value {{
+                font-size: 32px;
+            }}
+            
+            .section-header h2 {{
+                font-size: 24px;
             }}
             
             .chart-container {{
-                height: 300px;
+                height: 220px;
+            }}
+            
+            .tab-navigation {{
+                margin: 0 8px 16px;
+            }}
+            
+            .dashboard {{
+                padding: 0 8px;
+            }}
+            
+            .modal-content {{
+                width: 98%;
+                margin: 2% auto;
+            }}
+        }}
+        
+        /* Landscape Mobile */
+        @media (max-width: 768px) and (orientation: landscape) {{
+            .hero {{
+                min-height: 90vh;
+            }}
+            
+            .hero-container {{
+                padding: 40px 16px 30px;
+            }}
+            
+            .chart-container {{
+                height: 200px;
+            }}
+        }}
+        
+        /* Touch and Gesture Enhancements */
+        @media (pointer: coarse) {{
+            .metric-card,
+            .news-card,
+            .tab-button {{
+                cursor: pointer;
+                -webkit-tap-highlight-color: rgba(0, 212, 255, 0.2);
+            }}
+            
+            .metric-card:active,
+            .news-card:active {{
+                background: rgba(26, 26, 26, 1);
             }}
         }}
     </style>
@@ -2144,10 +2382,211 @@ class EnergyIntelligenceWebsite:
             document.getElementById('carbon-price').textContent = '€' + carbonPrice.toFixed(2);
         }}
         
+        // Mobile-specific functionality
+        function isMobile() {{
+            return window.innerWidth <= 768;
+        }}
+        
+        function initMobileEnhancements() {{
+            // Add mobile class to body
+            if (isMobile()) {{
+                document.body.classList.add('mobile-device');
+            }}
+            
+            // Mobile-optimized chart configurations
+            if (isMobile()) {{
+                // Update chart defaults for mobile
+                Chart.defaults.responsive = true;
+                Chart.defaults.maintainAspectRatio = false;
+                Chart.defaults.plugins.legend.labels.boxWidth = 12;
+                Chart.defaults.plugins.legend.labels.font = {{ size: 12 }};
+                Chart.defaults.scales.x.ticks.font = {{ size: 10 }};
+                Chart.defaults.scales.y.ticks.font = {{ size: 10 }};
+            }}
+            
+            // Touch feedback for cards
+            document.querySelectorAll('.metric-card, .news-card').forEach(card => {{
+                card.addEventListener('touchstart', function() {{
+                    this.style.transform = 'scale(0.98)';
+                }});
+                
+                card.addEventListener('touchend', function() {{
+                    setTimeout(() => {{
+                        this.style.transform = '';
+                    }}, 150);
+                }});
+            }});
+            
+            // Prevent zoom on double tap for buttons
+            document.querySelectorAll('.tab-button, .read-article-btn').forEach(button => {{
+                button.addEventListener('touchend', function(e) {{
+                    e.preventDefault();
+                    this.click();
+                }});
+            }});
+            
+            // Swipe gesture for tabs (basic implementation)
+            let startX = null;
+            const tabContainer = document.querySelector('.dashboard');
+            
+            if (tabContainer) {{
+                tabContainer.addEventListener('touchstart', function(e) {{
+                    startX = e.touches[0].clientX;
+                }});
+                
+                tabContainer.addEventListener('touchend', function(e) {{
+                    if (!startX) return;
+                    
+                    const endX = e.changedTouches[0].clientX;
+                    const diffX = startX - endX;
+                    
+                    // Swipe threshold
+                    if (Math.abs(diffX) > 100) {{
+                        const currentTab = document.querySelector('.tab-button.active');
+                        const tabs = document.querySelectorAll('.tab-button');
+                        let currentIndex = Array.from(tabs).indexOf(currentTab);
+                        
+                        if (diffX > 0 && currentIndex < tabs.length - 1) {{
+                            // Swipe left - next tab
+                            tabs[currentIndex + 1].click();
+                        }} else if (diffX < 0 && currentIndex > 0) {{
+                            // Swipe right - previous tab
+                            tabs[currentIndex - 1].click();
+                        }}
+                    }}
+                    
+                    startX = null;
+                }});
+            }}
+        }}
+        
+        // Mobile-optimized chart creation functions
+        function createMobileOptimizedChart(ctx, config) {{
+            if (isMobile()) {{
+                // Mobile-specific chart optimizations
+                if (config.options) {{
+                    config.options.plugins = config.options.plugins || {{}};
+                    config.options.plugins.legend = config.options.plugins.legend || {{}};
+                    config.options.plugins.legend.labels = config.options.plugins.legend.labels || {{}};
+                    config.options.plugins.legend.labels.boxWidth = 12;
+                    config.options.plugins.legend.labels.font = {{ size: 11 }};
+                    
+                    // Reduce padding for mobile
+                    config.options.layout = config.options.layout || {{}};
+                    config.options.layout.padding = 10;
+                    
+                    // Optimize tooltip for mobile
+                    config.options.plugins.tooltip = config.options.plugins.tooltip || {{}};
+                    config.options.plugins.tooltip.titleFont = {{ size: 12 }};
+                    config.options.plugins.tooltip.bodyFont = {{ size: 11 }};
+                    config.options.plugins.tooltip.padding = 8;
+                }}
+            }}
+            
+            return new Chart(ctx, config);
+        }}
+        
+        // Update existing chart creation functions to use mobile optimization
+        const originalCreateSectorChart = createSectorChart;
+        createSectorChart = function(data) {{
+            const ctx = document.getElementById('sectorChart').getContext('2d');
+            
+            const config = {{
+                type: 'bar',
+                data: {{
+                    labels: ['Oil', 'Natural Gas', 'Coal', 'Solar', 'Wind', 'Hydro'],
+                    datasets: [{{
+                        label: 'Current Prices',
+                        data: [
+                            data.fossil_fuels.oil,
+                            data.fossil_fuels.natural_gas * 10,
+                            data.fossil_fuels.coal,
+                            data.renewables.solar,
+                            data.renewables.wind,
+                            data.renewables.hydro
+                        ],
+                        backgroundColor: [
+                            'rgba(239, 68, 68, 0.8)',
+                            'rgba(251, 146, 60, 0.8)',
+                            'rgba(163, 163, 163, 0.8)',
+                            'rgba(34, 197, 94, 0.8)',
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(99, 102, 241, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgb(239, 68, 68)',
+                            'rgb(251, 146, 60)',
+                            'rgb(163, 163, 163)',
+                            'rgb(34, 197, 94)',
+                            'rgb(59, 130, 246)',
+                            'rgb(99, 102, 241)'
+                        ],
+                        borderWidth: 2
+                    }}]
+                }},
+                options: {{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {{
+                        legend: {{ display: false }},
+                        tooltip: {{
+                            callbacks: {{
+                                label: function(context) {{
+                                    const label = context.label || '';
+                                    const value = context.parsed.y;
+                                    if (label === 'Natural Gas') return label + ': $' + (value/10).toFixed(2) + '/MMBtu';
+                                    if (label === 'Coal') return label + ': $' + value.toFixed(2) + '/ton';
+                                    return label + ': $' + value.toFixed(2) + '/MWh';
+                                }}
+                            }}
+                        }}
+                    }},
+                    scales: {{
+                        y: {{
+                            beginAtZero: true,
+                            grid: {{ color: 'rgba(255, 255, 255, 0.1)' }},
+                            ticks: {{ 
+                                color: '#a3a3a3',
+                                font: {{ size: isMobile() ? 10 : 12 }}
+                            }}
+                        }},
+                        x: {{
+                            grid: {{ display: false }},
+                            ticks: {{ 
+                                color: '#a3a3a3',
+                                font: {{ size: isMobile() ? 10 : 12 }},
+                                maxRotation: isMobile() ? 45 : 0
+                            }}
+                        }}
+                    }}
+                }}
+            }};
+            
+            return createMobileOptimizedChart(ctx, config);
+        }};
+        
+        // Resize handler for mobile orientation changes
+        window.addEventListener('resize', function() {{
+            // Reload charts on orientation change
+            setTimeout(() => {{
+                if (document.body.classList.contains('comparison-active')) {{
+                    loadComparisonData();
+                }}
+            }}, 300);
+        }});
+        
+        // Prevent zoom on inputs (mobile Safari)
+        document.addEventListener('touchstart', function(e) {{
+            if (e.touches.length > 1) {{
+                e.preventDefault();
+            }}
+        }});
+        
         document.addEventListener('DOMContentLoaded', function() {{
             loadNews();
             initializeOilCardModals(); // Initialize oil card modals with EIA API integration
-            console.log('✅ Energy Intelligence loaded with EIA API integration');
+            initMobileEnhancements(); // Initialize mobile enhancements
+            console.log('✅ Energy Intelligence loaded with EIA API integration and mobile optimization');
         }});
     </script>
 </head>
