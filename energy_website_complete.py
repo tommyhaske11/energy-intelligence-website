@@ -11,7 +11,7 @@ import json
 import os
 import requests
 from datetime import datetime, timedelta
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 import threading
 import time
@@ -78,6 +78,22 @@ class EnergyIntelligenceWebsite:
         @self.app.route('/api/carbon-pricing')
         def get_carbon_pricing():
             return jsonify(self.get_carbon_pricing_data())
+        
+        # Chat Agent API endpoints
+        @self.app.route('/api/chat', methods=['POST'])
+        def chat():
+            try:
+                data = request.get_json()
+                user_message = data.get('message', '')
+                if not user_message:
+                    return jsonify({'error': 'Message is required'}), 400
+                
+                # Process the chat message
+                response = self.process_chat_message(user_message)
+                return jsonify({'response': response})
+            except Exception as e:
+                print(f"Chat error: {e}")
+                return jsonify({'error': 'Failed to process message'}), 500
     
     def get_historical_oil_prices(self, oil_type):
         """Fetch real historical oil price data from EIA API"""
@@ -715,6 +731,80 @@ class EnergyIntelligenceWebsite:
             'current_price': carbon_prices[-1],
             'price_change': ((carbon_prices[-1] - carbon_prices[-2]) / carbon_prices[-2] * 100)
         }
+    
+    def process_chat_message(self, user_message):
+        """Process user chat messages and provide intelligent responses"""
+        message_lower = user_message.lower()
+        
+        # Get current market data for context
+        current_data = self.get_current_market_context()
+        
+        # Simple pattern matching for now (we'll enhance this with OpenAI later)
+        if any(word in message_lower for word in ['oil', 'crude', 'brent', 'wti']):
+            return self.get_oil_price_response(current_data)
+        
+        elif any(word in message_lower for word in ['gas', 'natural gas']):
+            return self.get_gas_price_response(current_data)
+        
+        elif any(word in message_lower for word in ['renewable', 'solar', 'wind', 'clean energy']):
+            return self.get_renewable_response()
+        
+        elif any(word in message_lower for word in ['carbon', 'emissions', 'co2']):
+            return self.get_carbon_response()
+        
+        elif any(word in message_lower for word in ['compare', 'comparison', 'vs', 'versus']):
+            return self.get_comparison_response()
+        
+        elif any(word in message_lower for word in ['trend', 'trends', 'forecast', 'prediction']):
+            return self.get_trends_response()
+        
+        elif any(word in message_lower for word in ['hello', 'hi', 'hey']):
+            return self.get_greeting_response()
+        
+        elif any(word in message_lower for word in ['help', 'what can you do']):
+            return self.get_help_response()
+        
+        else:
+            return self.get_default_response()
+    
+    def get_current_market_context(self):
+        """Get current market data for chat context"""
+        return {{
+            'brent_price': self.get_current_price('brent', 74.25),
+            'wti_price': self.get_current_price('wti', 70.80),
+            'gas_price': self.get_current_price('gas', 2.65),
+            'last_update': self.last_update or datetime.now().strftime('%H:%M:%S')
+        }}
+    
+    def get_oil_price_response(self, data):
+        brent = data['brent_price']
+        wti = data['wti_price']
+        return f"📊 **Current Oil Prices:**\\n\\n🛢️ **Brent Crude:** ${brent:.2f}/barrel\\n🛢️ **WTI Crude:** ${wti:.2f}/barrel\\n\\nPrices are updated every minute from live market data. Click on the oil price cards in the dashboard to see detailed historical charts with official EIA data.\\n\\nWould you like me to explain what's driving these price movements?"
+    
+    def get_gas_price_response(self, data):
+        gas = data['gas_price']
+        return f"⛽ **Natural Gas Price:**\\n\\n💨 **Henry Hub:** ${gas:.2f}/MMBtu\\n\\nNatural gas is a key energy source for power generation and heating. The price is influenced by weather patterns, storage levels, and production capacity.\\n\\nWant to see how gas prices compare to renewable energy costs?"
+    
+    def get_renewable_response(self):
+        return f"🌱 **Renewable Energy Insights:**\\n\\n☀️ **Solar LCOE:** ~$42.30/MWh\\n💨 **Wind LCOE:** ~$38.50/MWh\\n⚡ **US Electricity:** $0.168/kWh\\n\\nRenewable energy costs have dropped dramatically over the past decade. Solar and wind are now the cheapest forms of electricity in most regions.\\n\\nCheck out the 'Sector Comparison' tab to see detailed renewable vs fossil fuel trends!"
+    
+    def get_carbon_response(self):
+        return f"🌍 **Carbon Market Update:**\\n\\n💨 **EU Carbon Price:** ~€94.50/tonne CO2\\n📉 **Emissions Trend:** Declining in developed markets\\n🎯 **Net Zero Goals:** Driving policy changes\\n\\nCarbon pricing is becoming a major factor in energy investment decisions. The EU ETS is the world's largest carbon market.\\n\\nWant to see the carbon pricing chart?"
+    
+    def get_comparison_response(self):
+        return f"⚖️ **Energy Sector Comparison:**\\n\\n**Fossil Fuels:**\\n• Oil: ~$74/barrel\\n• Natural Gas: ~$2.65/MMBtu\\n• Coal: ~$135/ton\\n\\n**Renewables:**\\n• Solar: ~$42/MWh\\n• Wind: ~$38/MWh\\n• Hydro: ~$45/MWh\\n\\nRenewables are now cost-competitive with fossil fuels in most markets. Switch to the 'Sector Comparison' tab for interactive charts!"
+    
+    def get_trends_response(self):
+        return f"📈 **Energy Market Trends:**\\n\\n🔄 **Key Trends:**\\n• Renewable energy share growing ~8% annually\\n• Oil demand plateauing in developed markets\\n• Natural gas serving as 'transition fuel'\\n• Carbon pricing expanding globally\\n• AI/datacenter energy demand surging\\n\\nThe energy transition is accelerating, with renewables becoming the dominant new capacity additions worldwide."
+    
+    def get_greeting_response(self):
+        return f"👋 **Hello! I'm your Energy Intelligence Assistant.**\\n\\nI can help you with:\\n• Current oil, gas, and renewable energy prices\\n• Market trends and analysis\\n• Sector comparisons\\n• Carbon market updates\\n• Historical data insights\\n\\nWhat would you like to know about energy markets today?"
+    
+    def get_help_response(self):
+        return f"🤖 **I can help you with:**\\n\\n**📊 Market Data:**\\n• Current oil & gas prices\\n• Renewable energy costs\\n• Regional price variations\\n\\n**📈 Analysis:**\\n• Market trends & forecasts\\n• Sector comparisons\\n• Carbon market updates\\n\\n**💡 Try asking:**\\n• 'What's the oil price?'\\n• 'Compare solar vs oil costs'\\n• 'Show me renewable trends'\\n• 'What's driving energy markets?'\\n\\nJust type your question naturally!"
+    
+    def get_default_response(self):
+        return f"🤔 I'd be happy to help with energy market information!\\n\\nI specialize in:\\n• Oil & gas prices\\n• Renewable energy data\\n• Market trends & analysis\\n• Sector comparisons\\n\\nTry asking something like:\\n• 'What's the current oil price?'\\n• 'How do renewables compare to fossil fuels?'\\n• 'Show me energy trends'\\n\\nWhat would you like to know?"
     
     def render_dashboard(self):
         brent_price = self.get_current_price('brent', 74.25)
@@ -1711,6 +1801,223 @@ class EnergyIntelligenceWebsite:
                 background: rgba(26, 26, 26, 1);
             }}
         }}
+        
+        /* Chat Interface Styles */
+        .chat-widget {{
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1000;
+        }}
+        
+        .chat-toggle {{
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--spacex-blue) 0%, var(--spacex-accent) 100%);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
+            transition: all 0.3s ease;
+        }}
+        
+        .chat-toggle:hover {{
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(0, 212, 255, 0.4);
+        }}
+        
+        .chat-toggle svg {{
+            width: 28px;
+            height: 28px;
+            color: white;
+        }}
+        
+        .chat-container {{
+            position: absolute;
+            bottom: 80px;
+            right: 0;
+            width: 380px;
+            height: 500px;
+            background: var(--spacex-gray);
+            border: 1px solid var(--spacex-accent);
+            border-radius: 16px;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+        }}
+        
+        .chat-container.active {{
+            display: flex;
+        }}
+        
+        .chat-header {{
+            padding: 20px;
+            background: linear-gradient(135deg, var(--spacex-blue) 0%, var(--spacex-accent) 100%);
+            border-radius: 16px 16px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }}
+        
+        .chat-header h3 {{
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+        }}
+        
+        .chat-status {{
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }}
+        
+        .chat-messages {{
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }}
+        
+        .chat-message {{
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.4;
+        }}
+        
+        .chat-message.user {{
+            align-self: flex-end;
+            background: linear-gradient(135deg, var(--spacex-blue) 0%, var(--spacex-accent) 100%);
+            color: white;
+        }}
+        
+        .chat-message.agent {{
+            align-self: flex-start;
+            background: var(--spacex-light-gray);
+            color: var(--spacex-text);
+            border: 1px solid var(--spacex-border);
+        }}
+        
+        .chat-input-container {{
+            padding: 16px;
+            border-top: 1px solid var(--spacex-border);
+            display: flex;
+            gap: 8px;
+        }}
+        
+        .chat-input {{
+            flex: 1;
+            padding: 12px 16px;
+            background: var(--spacex-light-gray);
+            border: 1px solid var(--spacex-border);
+            border-radius: 24px;
+            color: var(--spacex-text);
+            font-size: 14px;
+            outline: none;
+        }}
+        
+        .chat-input:focus {{
+            border-color: var(--spacex-accent);
+            box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.2);
+        }}
+        
+        .chat-send {{
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--spacex-blue) 0%, var(--spacex-accent) 100%);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }}
+        
+        .chat-send:hover {{
+            transform: scale(1.1);
+        }}
+        
+        .chat-send svg {{
+            width: 18px;
+            height: 18px;
+            color: white;
+        }}
+        
+        .chat-typing {{
+            padding: 12px 16px;
+            background: var(--spacex-light-gray);
+            border: 1px solid var(--spacex-border);
+            border-radius: 12px;
+            align-self: flex-start;
+            max-width: 80%;
+            display: none;
+        }}
+        
+        .chat-typing.active {{
+            display: block;
+        }}
+        
+        .typing-dots {{
+            display: flex;
+            gap: 4px;
+        }}
+        
+        .typing-dot {{
+            width: 6px;
+            height: 6px;
+            background: var(--spacex-accent);
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }}
+        
+        .typing-dot:nth-child(2) {{
+            animation-delay: 0.2s;
+        }}
+        
+        .typing-dot:nth-child(3) {{
+            animation-delay: 0.4s;
+        }}
+        
+        @keyframes typing {{
+            0%, 60%, 100% {{ opacity: 0.3; }}
+            30% {{ opacity: 1; }}
+        }}
+        
+        /* Mobile Chat Adjustments */
+        @media (max-width: 768px) {{
+            .chat-widget {{
+                bottom: 16px;
+                right: 16px;
+            }}
+            
+            .chat-container {{
+                width: calc(100vw - 32px);
+                height: 70vh;
+                bottom: 80px;
+                right: 0;
+            }}
+            
+            .chat-toggle {{
+                width: 50px;
+                height: 50px;
+            }}
+            
+            .chat-toggle svg {{
+                width: 24px;
+                height: 24px;
+            }}
+        }}
     </style>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -2582,11 +2889,111 @@ class EnergyIntelligenceWebsite:
             }}
         }});
         
+        // Chat functionality
+        function initializeChat() {{
+            const chatToggle = document.getElementById('chatToggle');
+            const chatContainer = document.getElementById('chatContainer');
+            const chatInput = document.getElementById('chatInput');
+            const chatSend = document.getElementById('chatSend');
+            const chatMessages = document.getElementById('chatMessages');
+            const chatTyping = document.getElementById('chatTyping');
+            
+            // Toggle chat visibility
+            chatToggle.addEventListener('click', function() {{
+                chatContainer.classList.toggle('active');
+                if (chatContainer.classList.contains('active')) {{
+                    chatInput.focus();
+                }}
+            }});
+            
+            // Send message function
+            function sendMessage() {{
+                const message = chatInput.value.trim();
+                if (!message) return;
+                
+                // Add user message to chat
+                addMessageToChat(message, 'user');
+                chatInput.value = '';
+                
+                // Show typing indicator
+                showTypingIndicator();
+                
+                // Send to backend
+                fetch('/api/chat', {{
+                    method: 'POST',
+                    headers: {{
+                        'Content-Type': 'application/json',
+                    }},
+                    body: JSON.stringify({{ message: message }})
+                }})
+                .then(response => response.json())
+                .then(data => {{
+                    hideTypingIndicator();
+                    if (data.response) {{
+                        addMessageToChat(data.response, 'agent');
+                    }} else {{
+                        addMessageToChat('Sorry, I encountered an error. Please try again.', 'agent');
+                    }}
+                }})
+                .catch(error => {{
+                    hideTypingIndicator();
+                    console.error('Chat error:', error);
+                    addMessageToChat('Sorry, I am having trouble connecting. Please try again.', 'agent');
+                }});
+            }}
+            
+            // Event listeners
+            chatSend.addEventListener('click', sendMessage);
+            chatInput.addEventListener('keypress', function(e) {{
+                if (e.key === 'Enter') {{
+                    sendMessage();
+                }}
+            }});
+            
+            // Close chat when clicking outside
+            document.addEventListener('click', function(e) {{
+                if (!chatContainer.contains(e.target) && !chatToggle.contains(e.target)) {{
+                    chatContainer.classList.remove('active');
+                }}
+            }});
+        }}
+        
+        function addMessageToChat(message, sender) {{
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${{sender}}`;
+            
+            // Convert markdown-style formatting to HTML
+            const formattedMessage = message
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\\n/g, '<br>')
+                .replace(/•/g, '•');
+            
+            messageDiv.innerHTML = formattedMessage;
+            chatMessages.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }}
+        
+        function showTypingIndicator() {{
+            const chatTyping = document.getElementById('chatTyping');
+            const chatMessages = document.getElementById('chatMessages');
+            chatTyping.classList.add('active');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }}
+        
+        function hideTypingIndicator() {{
+            const chatTyping = document.getElementById('chatTyping');
+            chatTyping.classList.remove('active');
+        }}
+        
         document.addEventListener('DOMContentLoaded', function() {{
             loadNews();
             initializeOilCardModals(); // Initialize oil card modals with EIA API integration
             initMobileEnhancements(); // Initialize mobile enhancements
-            console.log('✅ Energy Intelligence loaded with EIA API integration and mobile optimization');
+            initializeChat(); // Initialize chat functionality
+            console.log('✅ Energy Intelligence loaded with EIA API integration, mobile optimization, and chat agent');
         }});
     </script>
 </head>
@@ -2908,6 +3315,42 @@ class EnergyIntelligenceWebsite:
             <p>Real-time data • Financial analysis • Strategic insights • Official U.S. Government Energy Data</p>
         </div>
     </footer>
+    
+    <!-- Chat Widget -->
+    <div class="chat-widget">
+        <div class="chat-container" id="chatContainer">
+            <div class="chat-header">
+                <div class="chat-status"></div>
+                <h3>Energy Intelligence Assistant</h3>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="chat-message agent">
+                    👋 Hello! I'm your Energy Intelligence Assistant. I can help you with current prices, market trends, and energy analysis. What would you like to know?
+                </div>
+            </div>
+            <div class="chat-typing" id="chatTyping">
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+            <div class="chat-input-container">
+                <input type="text" class="chat-input" id="chatInput" placeholder="Ask about energy markets..." />
+                <button class="chat-send" id="chatSend">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <button class="chat-toggle" id="chatToggle">
+            <svg viewBox="0 0 24 24" fill="none">
+                <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
+    </div>
 </body>
 </html>"""
         
