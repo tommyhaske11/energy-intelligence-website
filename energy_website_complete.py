@@ -769,12 +769,12 @@ class EnergyIntelligenceWebsite:
     
     def get_current_market_context(self):
         """Get current market data for chat context"""
-        return {{
+        return {
             'brent_price': self.get_current_price('brent', 74.25),
             'wti_price': self.get_current_price('wti', 70.80),
             'gas_price': self.get_current_price('gas', 2.65),
             'last_update': self.last_update or datetime.now().strftime('%H:%M:%S')
-        }}
+        }
     
     def get_oil_price_response(self, data):
         brent = data['brent_price']
@@ -2965,7 +2965,7 @@ class EnergyIntelligenceWebsite:
             
             // Convert markdown-style formatting to HTML
             const formattedMessage = message
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\\*\\*(.*?)\\*\\*/g, '<strong>$1</strong>')
                 .replace(/\\n/g, '<br>')
                 .replace(/•/g, '•');
             
